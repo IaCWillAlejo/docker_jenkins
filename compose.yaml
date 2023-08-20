@@ -1,0 +1,70 @@
+name: jenkins-environment
+version: "3"
+services:
+  jenkins-docker: 
+    image: docker:dind
+    container_name: jenkins-docker
+    privileged: true
+    networks:
+      jenkins:
+        aliases:
+          - docker
+    environment:
+      - DOCKER_TLS_CERTDIR=/cert
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    ports:
+      - 2376:2376
+    command: --storage-driver=overlay2
+  jenkins-blueocean:
+    image: jenkins-blueocean:${JENKINS_VERSION}
+    container_name: jenkins-blueocean_${JENKINS_VERSION}
+    depends_on:
+      - jenkins-docker
+      - jenkins-agent
+    build:
+      dockerfile: jenkins.Dockerfile
+      args:
+        - JENKINS_VERSION=${JENKINS_VERSION}
+    restart: on-failure
+    networks:
+      - jenkins
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=0
+    ports:
+      - "8080:8080"
+      - "50000:50000" 
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+  jenkins-agent:
+    image: jenkins/ssh-agent:${AGENT_VERSION}
+    container_name: jenkins-agent_${JENKINS_VERSION}
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=${SSH_PUBKEY}
+    networks:
+      - jenkins
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    ports:
+      - "2222:22"
+    volumes:
+      - agent-data:/home/jenkins
+      - jenkins-docker-certs:/certs/client
+networks:
+  jenkins:
+    name: jenkins
+volumes:
+  jenkins-docker-certs:
+    name: jenkins-docker-certs
+  jenkins-data:
+    name: jenkins-data
+  agent-data:
+    name: agent-data
