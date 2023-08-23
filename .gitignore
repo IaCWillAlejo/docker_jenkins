@@ -39,5 +39,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-## Others
-.env
+## ssh keys
+jenkins_agent_key*

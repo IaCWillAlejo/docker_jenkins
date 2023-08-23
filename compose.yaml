@@ -1,9 +1,9 @@
-name: jenkins-environment
+name: jenkins_${JENKINS_VERSION}
 version: "3"
 services:
   jenkins-docker: 
-    image: docker:dind
-    container_name: jenkins-docker
+    image: docker:${DOCKER_VERSION}
+    container_name: jenkins-docker_${DOCKER_VERSION}
     privileged: true
     networks:
       jenkins:
@@ -24,7 +24,7 @@ services:
       - jenkins-docker
       - jenkins-agent
     build:
-      dockerfile: jenkins.Dockerfile
+      dockerfile: dockerfile
       args:
         - JENKINS_VERSION=${JENKINS_VERSION}
     restart: on-failure
@@ -36,7 +36,7 @@ services:
     environment:
       - DOCKER_HOST=tcp://docker:2376
       - DOCKER_CERT_PATH=/certs/client
-      - DOCKER_TLS_VERIFY=0
+      - DOCKER_TLS_VERIFY=1
     ports:
       - "8080:8080"
       - "50000:50000" 
@@ -63,8 +63,8 @@ networks:
     name: jenkins
 volumes:
   jenkins-docker-certs:
-    name: jenkins-docker-certs
+    name: jenkins_certs
   jenkins-data:
-    name: jenkins-data
+    name: jenkins-blueocean_data
   agent-data:
-    name: agent-data
+    name: jenkins-agent_data
