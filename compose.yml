@@ -11,12 +11,19 @@ services:
           - docker
     environment:
       - DOCKER_TLS_CERTDIR=/cert
+      - TZ=${TIME_ZONE}
     volumes:
       - jenkins-docker-certs:/certs/client
       - jenkins-data:/var/jenkins_home
     ports:
       - 2376:2376
     command: --storage-driver=overlay2
+    deploy:
+      resources:
+        limits:
+          memory: 4gb
+        reservations:
+          memory: 2gb
   jenkins-blueocean:
     image: jenkins-blueocean:${JENKINS_VERSION}
     container_name: jenkins-blueocean_${JENKINS_VERSION}
@@ -36,18 +43,26 @@ services:
     environment:
       - DOCKER_HOST=tcp://docker:2376
       - DOCKER_CERT_PATH=/certs/client
-      - DOCKER_TLS_VERIFY=1
+      - DOCKER_TLS_VERIFY=0
+      - TZ=${TIME_ZONE}
     ports:
       - "8080:8080"
       - "50000:50000" 
     volumes:
       - jenkins-data:/var/jenkins_home
       - jenkins-docker-certs:/certs/client:ro
+    deploy:
+      resources:
+        limits:
+          memory: 4gb
+        reservations:
+          memory: 2gb
   jenkins-agent:
     image: jenkins/ssh-agent:${AGENT_VERSION}
     container_name: jenkins-agent_${JENKINS_VERSION}
     environment:
       - JENKINS_AGENT_SSH_PUBKEY=${SSH_PUBKEY}
+      - TZ=${TIME_ZONE}
     networks:
       - jenkins
     dns:
@@ -58,6 +73,12 @@ services:
     volumes:
       - agent-data:/home/jenkins
       - jenkins-docker-certs:/certs/client
+    deploy:
+      resources:
+        limits:
+          memory: 4gb
+        reservations:
+          memory: 2gb
 networks:
   jenkins:
     name: jenkins
