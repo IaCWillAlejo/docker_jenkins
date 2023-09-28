@@ -74,7 +74,6 @@ services:
     ports:
       - "2222:22"
     volumes:
-      # - agent-data:/home/jenkins
       - jenkins-docker-certs:/certs/client:ro
       - jenkins-agent-dot:/home/jenkins/.jenkins
       - jenkins-agent-home:/home/jenkins/agent
@@ -97,8 +96,6 @@ volumes:
     name: jenkins-docker-var
   jenkins-data:
     name: jenkins-blueocean_data
-  # agent-data:
-  #   name: jenkins-agent_data
   jenkins-agent-dot:
     name: jenkins-agent-dot
   jenkins-agent-home:
