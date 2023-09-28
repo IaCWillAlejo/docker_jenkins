@@ -16,6 +16,7 @@ services:
     volumes:
       - jenkins-docker-certs:/certs/client
       - jenkins-data:/var/jenkins_home
+      - jenkins-docker-var:/var/lib/docker
     ports:
       - 2376:2376
     command: --storage-driver=overlay2
@@ -73,8 +74,12 @@ services:
     ports:
       - "2222:22"
     volumes:
-      - agent-data:/home/jenkins
-      - jenkins-docker-certs:/certs/client
+      - jenkins-docker-certs:/certs/client:ro
+      - jenkins-agent-dot:/home/jenkins/.jenkins
+      - jenkins-agent-home:/home/jenkins/agent
+      - jenkins-agent-run:/run
+      - jenkins-agent-tmp:/tmp
+      - jenkins-agent-var:/var/run
     deploy:
       resources:
         limits:
@@ -87,7 +92,17 @@ networks:
 volumes:
   jenkins-docker-certs:
     name: jenkins_certs
+  jenkins-docker-var:
+    name: jenkins-docker-var
   jenkins-data:
     name: jenkins-blueocean_data
-  agent-data:
-    name: jenkins-agent_data
+  jenkins-agent-dot:
+    name: jenkins-agent-dot
+  jenkins-agent-home:
+    name: jenkins-agent-home
+  jenkins-agent-run:
+    name: jenkins-agent-run
+  jenkins-agent-tmp:
+    name: jenkins-agent-tmp
+  jenkins-agent-var:
+    name: jenkins-agent-var
