@@ -1,5 +1,4 @@
 name: jenkins_${JENKINS_VERSION}
-version: "3"
 services:
   jenkins-docker: 
     image: docker:${DOCKER_VERSION}
